@@ -7,7 +7,10 @@ const config = {
   zoom: 12,
   title: "Zest",
   description:
-    "Replace with information about your application. Ex. You can search by address to sort the list below by distance. You can also filter the list by language support options, which days a location is open, and whether they have devices to use to complete the survey by phone or online.",
+    "Our app aims to improve mental health by offering fresh ideas of things to do in Singapore, all while reconnecting with ourselves, others and nature. \
+    Lockdown or no lockdown, let’s spark our zest for life once again. \
+    Discover hidden gems in Singapore. Try new well-being activities amongst scenic greenery. And connect with like-minded individuals while you’re at it. \
+    We know just the place, and we’ll take you there.",
   sideBarInfo: ["Location_Name", "Address", "Type"],
   popupInfo: ["Location_Name"],
   filters: [

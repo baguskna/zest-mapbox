@@ -21,10 +21,10 @@ const map = new mapboxgl.Map({
   transformRequest: transformRequest,
 });
 
-function flyToLocation(currentFeature) {
+function flyToLocation(currentFeature, zoomLevel = 13) {
   map.flyTo({
     center: currentFeature,
-    zoom: 18,
+    zoom: zoomLevel,
   });
 }
 
@@ -39,20 +39,48 @@ function createPopup(currentFeature) {
     "<div>" +
       `<h1 class="has-bottom-margin">` + currentFeature.properties[config.popupInfo] + "</h1>" +
       `<h3 class="has-bottom-margin">` + currentFeature.properties['Type'] +  "</h3>" +
-      `<img src="https://lh5.googleusercontent.com/p/AF1QipPgU9iyLZGUfY0zsTRu_-QQTFCoF5la4AfnBB9s=w203-h152-k-no">`
-      `<audio controls>
-        <source src="music/bensound-allthat.mp3" type="audio/mpeg">
+      `<img class="image-pop-up has-bottom-margin" src="${currentFeature.properties['Photo']}">` +
+      `<video class="video-pop-up hidden" controlslist="nodownload" muted="1" loop="" autoplay="" preload="auto" width="100%">
+        <source src="${currentFeature.properties['Video']}" type="video/mp4">
+        </video>` +
+      `<audio id="audio-pop-up" hidden loop>
+        <source src="music/${currentFeature.properties['Type']}.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
       </audio>` +
+      `<button class="btn lets-go">'Lets Go!'</button>` +
+      `<button class="btn hidden stop-music">Stop music</button>` +
+      `<button class="btn hidden play-music">Play music</button>` +
     "</div>"
     )
     .addTo(map)
-    .setMaxWidth('500px');
+    .setMaxWidth('250px');
 
-    const musicButton = popups[0].querySelector('.btn-play');
-    musicButton.addEventListener('click', () => {
-      console.log('clicked')
+    let letsGoButton = document.querySelector('.lets-go');
+    letsGoButton.addEventListener('click', () => {
+      const clickedListing = currentFeature.geometry.coordinates;
+      flyToLocation(clickedListing, 19.5);
+      const image = document.querySelector('.image-pop-up');
+      const video = document.querySelector('.video-pop-up');
+      const audio = document.querySelector('#audio-pop-up');
+      const stopMusic = document.querySelector('.stop-music');
+      const playMusic = document.querySelector('.play-music');
+      audio.play();
+      image.classList.add('hidden');
+      video.classList.remove('hidden');
+      letsGoButton.classList.add('hidden');
+      stopMusic.classList.remove('hidden');
+      stopMusic.addEventListener('click', () => {
+        audio.pause();
+        playMusic.classList.remove('hidden');
+        stopMusic.classList.add('hidden');
+      });
+      playMusic.addEventListener('click', () => {
+        audio.play();
+        playMusic.classList.add('hidden');
+        stopMusic.classList.remove('hidden');
+      });
     });
+
 }
 
 function buildLocationList(locationData) {
@@ -74,18 +102,16 @@ function buildLocationList(locationData) {
     link.className = "title";
     link.id = "link-" + prop.id;
     link.innerHTML =
-      '<p style="line-height: 1.25">' + prop[columnHeaders[0]] + "</p>";
+      '<p style="line-height: 1.25">' + prop['Type'] + "</p>";
 
     /* Add details to the individual listing. */
     const details = listing.appendChild(document.createElement("div"));
     details.className = "content";
 
-    for (let i = 1; i < columnHeaders.length; i++) {
-      const div = document.createElement("div");
-      div.innerText += prop[columnHeaders[i]];
-      div.className;
-      details.appendChild(div);
-    }
+    const div = document.createElement("div");
+    div.innerText += prop['Location_Name'];
+    div.className;
+    details.appendChild(div);
 
     link.addEventListener("click", function () {
       const clickedListing = location.geometry.coordinates;
@@ -440,45 +466,33 @@ map.on("load", function () {
   const layer = map.getLayer('park-location')
   map.setLayoutProperty('park-location', 'icon-image',
 
+  [
+    "step",
+    ["zoom"],
     [
-      "step",
-      ["zoom"],
-      [
-        "match",
-        ["get", "Category"],
-        ["Kick Boxing"],
-        "kickboxer-svgrepo-com",
-        ["Yoga"],
-        "yoga-svgrepo-com",
-        ["Hiking"],
-        "hiking-svgrepo-com",
-        ["Zumba"],
-        "music-player-svgrepo-com",
-        ["Bird Watching"],
-        "bird-svgrepo-com",
-        ["Meditation"],
-        "meditation-svgrepo-com",
-        "park-bench-svgrepo-com"
-      ],
-      17,
-      [
-        "match",
-        ["get", "Category"],
-        ["Kick Boxing"],
-        "",
-        ["Yoga"],
-        "",
-        ["Hiking"],
-        "",
-        ["Bird Watching"],
-        "",
-        ["Zumba"],
-        "",
-        ["Meditation"],
-        "",
-        ""
-      ]
-    ]
+      "match",
+      ["get", "Category"],
+      ["Kickboxing"],
+      "kickboxer-svgrepo-com",
+      ["Yoga"],
+      "yoga-svgrepo-com",
+      ["Hiking"],
+      "mountain-svgrepo-com",
+      ["Zumba"],
+      "music-player-svgrepo-com",
+      ["Bird Watching"],
+      "bird-svgrepo-com",
+      ["Meditation"],
+      "meditation-svgrepo-com",
+      ["Mountain-Biking"],
+      "bike-svgrepo-com",
+      ["Hot Spa"],
+      "sauna-svgrepo-com (1)",
+      "park-bench-svgrepo-com"
+    ],
+    17,
+    ""
+  ]
   );
 
   // map.setLayoutProperty('park-location', 'icon-allow-overlap', true)
@@ -493,7 +507,7 @@ map.on("load", function () {
 
   map.on('zoom', () => {
     console.log("center", map.getCenter(), ", zoom:", map.getZoom())
-  })
+  });
 
   function makeGeoJSON(csvData) {
     csv2geojson.csv2geojson(

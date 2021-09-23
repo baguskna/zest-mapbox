@@ -73,9 +73,9 @@
 
 .mapboxgl-popup-content {
   font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
-  padding: 24px;
+  padding: 16px;
   text-align: center;
-  width: 500px;
+  width: 250px;
 }
 
 .mapboxgl-popup-close-button {
@@ -112,4 +112,23 @@ h1 {
   font-size: 18px;
   font-weight: 500;
   line-height: 22px;
+}
+
+.lets-go {
+  color: #fff;
+}
+
+.hidden {
+  display: none;
+}
+
+.stop-music,
+.stop-music:hover {
+  background: #ff0000;
+}
+
+.play-music,
+.play-music:hover {
+  background: #00ff1a;
+  color: #000;
 }
